@@ -1,0 +1,10 @@
+<section>
+  <h2>Practice elements</h2>
+  <p>Choose an answer, then continue to the next card.</p>
+
+  <app-learning-card [card]="currentCard()" (answerSelected)="answered.set(true)" />
+
+  <button class="next-card" type="button" [disabled]="!answered()" (click)="nextCard()">
+    Next card
+  </button>
+</section>

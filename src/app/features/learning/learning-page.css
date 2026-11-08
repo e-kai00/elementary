@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  max-inline-size: 40rem;
+  margin-inline: auto;
+}
+
+h2 {
+  margin-block: 0 0.5rem;
+}
+
+p {
+  margin-block: 0 1.5rem;
+  line-height: 1.5;
+}
+
+.next-card {
+  min-block-size: 3rem;
+  max-inline-size: 100%;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #1d4ed8;
+  border-radius: 0.5rem;
+  background: #1d4ed8;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.next-card:hover:enabled {
+  background: #1e40af;
+}
+
+.next-card:disabled {
+  border-color: #6b7280;
+  background: #e5e7eb;
+  color: #4b5563;
+  cursor: default;
+}
+
+.next-card:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+}

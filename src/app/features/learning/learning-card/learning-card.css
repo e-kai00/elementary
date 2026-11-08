@@ -1,0 +1,80 @@
+:host {
+  display: block;
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  color: #1f2937;
+  font-family: inherit;
+}
+
+.learning-card {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #9ca3af;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+legend {
+  max-inline-size: 100%;
+  padding-inline: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+button {
+  min-block-size: 3rem;
+  padding: 0.75rem;
+  border: 2px solid #6b7280;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: inherit;
+  font: inherit;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+button:hover:enabled {
+  background: #e5e7eb;
+}
+
+button:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button.correct {
+  border-color: #166534;
+  background: #dcfce7;
+  color: #14532d;
+}
+
+button.incorrect {
+  border-color: #991b1b;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.feedback {
+  min-block-size: 3rem;
+  margin-block: 0.75rem 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 30rem) {
+  .options {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,28 @@
+<fieldset class="learning-card">
+  <legend>{{ card().prompt }}</legend>
+
+  <div class="options">
+    @for (option of card().options; track $index) {
+      <button
+        type="button"
+        [disabled]="selectedAnswer() !== null"
+        [class.correct]="selectedAnswer() !== null && option === card().correctAnswer"
+        [class.incorrect]="selectedAnswer() === option && !isCorrect()"
+        (click)="selectAnswer(option)"
+      >
+        {{ option }}
+      </button>
+    }
+  </div>
+</fieldset>
+
+<p class="feedback" role="status" aria-atomic="true">
+  @if (selectedAnswer() !== null) {
+    @if (isCorrect()) {
+      Correct! You selected {{ selectedAnswer() }}.
+    } @else {
+      Incorrect. You selected {{ selectedAnswer() }}. The correct answer is
+      {{ card().correctAnswer }}.
+    }
+  }
+</p>

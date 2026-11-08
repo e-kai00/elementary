@@ -9,6 +9,8 @@ import {
 } from '../../core/learning-card-generator';
 import type { LearningCard } from '../../core/models/learning-card.model';
 import { LearningCardComponent } from './learning-card/learning-card';
+import { LEARNING_LEVELS } from './learning-levels.config';
+import type { LearningLevel } from './learning-levels.config';
 
 const cardGenerators = [
   { type: 'name-to-symbol', generate: generateSymbolCard },
@@ -27,8 +29,21 @@ const cardGenerators = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LearningPageComponent {
+  protected readonly levels = LEARNING_LEVELS;
+  protected readonly selectedLevel = signal<LearningLevel>(LEARNING_LEVELS[0]);
   protected readonly currentCard = signal<LearningCard>(this.generateCard());
   protected readonly answered = signal(false);
+
+  protected selectLevel(levelId: string): void {
+    const level = this.levels.find((candidate) => candidate.id === Number(levelId));
+    if (!level) {
+      return;
+    }
+
+    this.selectedLevel.set(level);
+    this.currentCard.set(this.generateCard(this.currentCard()));
+    this.answered.set(false);
+  }
 
   protected nextCard(): void {
     if (!this.answered()) {
@@ -40,8 +55,11 @@ export class LearningPageComponent {
   }
 
   private generateCard(previous?: LearningCard): LearningCard {
+    const allowedGenerators = cardGenerators.filter(({ type }) =>
+      this.selectedLevel().cardTypes.includes(type),
+    );
     const choices = CHEMICAL_ELEMENTS.flatMap((element) =>
-      cardGenerators.map(({ type, generate }) => ({ element, type, generate })),
+      allowedGenerators.map(({ type, generate }) => ({ element, type, generate })),
     ).filter(
       ({ element, type }) => element.atomicNumber !== previous?.elementId || type !== previous.type,
     );

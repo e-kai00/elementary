@@ -2,6 +2,20 @@
   <h2>Practice elements</h2>
   <p>Choose an answer, then continue to the next card.</p>
 
+  <div class="level-selection">
+    <label for="learning-level">Learning level</label>
+    <select
+      id="learning-level"
+      #levelSelect
+      [value]="selectedLevel().id"
+      (change)="selectLevel(levelSelect.value)"
+    >
+      @for (level of levels; track level.id) {
+        <option [value]="level.id">{{ level.id }}. {{ level.name }}</option>
+      }
+    </select>
+  </div>
+
   <app-learning-card [card]="currentCard()" (answerSelected)="answered.set(true)" />
 
   <button class="next-card" type="button" [disabled]="!answered()" (click)="nextCard()">

@@ -1,1 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+@import './styles/tokens.css';
+
+body {
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+}

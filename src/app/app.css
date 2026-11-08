@@ -1,32 +1,30 @@
 :host {
   display: block;
-  max-inline-size: 50rem;
+  max-inline-size: var(--content-width);
   margin-inline: auto;
-  padding: clamp(1rem, 4vw, 2rem);
-  color: #1f2937;
-  font-family: system-ui, sans-serif;
+  padding: clamp(var(--space-4), 4vw, var(--space-8));
 }
 
 header {
-  margin-block-end: 2rem;
+  margin-block-end: var(--space-8);
 }
 
 h1 {
-  margin-block: 0 0.5rem;
+  margin-block: 0 var(--space-2);
 }
 
 p {
-  line-height: 1.5;
+  line-height: var(--line-height-text);
 }
 
 nav a {
   display: inline-block;
-  padding-block: 0.75rem;
-  color: #1d4ed8;
+  padding-block: var(--space-3);
+  color: var(--color-primary);
   text-underline-offset: 0.2em;
 }
 
 nav a:focus-visible {
-  outline: 3px solid #1d4ed8;
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }

@@ -1,42 +1,42 @@
 :host {
   display: block;
-  max-inline-size: 40rem;
+  max-inline-size: var(--card-width);
   margin-inline: auto;
 }
 
 h2 {
-  margin-block: 0 0.5rem;
+  margin-block: 0 var(--space-2);
 }
 
 p {
-  margin-block: 0 1.5rem;
-  line-height: 1.5;
+  margin-block: 0 var(--space-6);
+  line-height: var(--line-height-text);
 }
 
 .next-card {
-  min-block-size: 3rem;
+  min-block-size: var(--space-12);
   max-inline-size: 100%;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid #1d4ed8;
-  border-radius: 0.5rem;
-  background: #1d4ed8;
-  color: #fff;
+  padding: var(--space-3) var(--space-6);
+  border: var(--border-width-strong) solid var(--color-primary);
+  border-radius: var(--radius-small);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font: inherit;
   cursor: pointer;
 }
 
 .next-card:hover:enabled {
-  background: #1e40af;
+  background: var(--color-primary-hover);
 }
 
 .next-card:disabled {
-  border-color: #6b7280;
-  background: #e5e7eb;
-  color: #4b5563;
+  border-color: var(--color-disabled-border);
+  background: var(--color-disabled-surface);
+  color: var(--color-disabled-text);
   cursor: default;
 }
 
 .next-card:focus-visible {
-  outline: 3px solid #1d4ed8;
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }

@@ -1,24 +1,68 @@
 <section>
-  <h2>Practice elements</h2>
-  <p>Choose an answer, then continue to the next card.</p>
+  <h2 #screenHeading tabindex="-1">Practice elements</h2>
 
-  <div class="level-selection">
-    <label for="learning-level">Learning level</label>
-    <select
-      id="learning-level"
-      #levelSelect
-      [value]="selectedLevel().id"
-      (change)="selectLevel(levelSelect.value)"
-    >
-      @for (level of levels; track level.id) {
-        <option [value]="level.id">{{ level.id }}. {{ level.name }}</option>
+  @switch (screen()) {
+    @case ('selection') {
+      <p>Choose any level for a 10-card session. All levels are available.</p>
+      <div class="level-selection">
+        <label for="learning-level">Learning level</label>
+        <select
+          id="learning-level"
+          #levelSelect
+          [value]="selectedLevel().id"
+          (change)="selectLevel(levelSelect.value)"
+        >
+          @for (level of levels; track level.id) {
+            <option [value]="level.id">{{ level.id }}. {{ level.name }}</option>
+          }
+        </select>
+      </div>
+      <button class="start-session" type="button" (click)="startSession()">Start session</button>
+    }
+    @case ('session') {
+      <p>Level {{ selectedLevel().id }}: {{ selectedLevel().name }}</p>
+      <p class="progress" role="status">Card {{ cardNumber() }} of {{ sessionLength }}</p>
+
+      @if (currentCard(); as card) {
+        <app-learning-card [card]="card" (answerSelected)="recordAnswer($event)" />
       }
-    </select>
-  </div>
 
-  <app-learning-card [card]="currentCard()" (answerSelected)="answered.set(true)" />
-
-  <button class="next-card" type="button" [disabled]="!answered()" (click)="nextCard()">
-    Next card
-  </button>
+      <div class="actions">
+        <button class="next-card" type="button" [disabled]="!answered()" (click)="nextCard()">
+          {{ cardNumber() === sessionLength ? 'View results' : 'Next card' }}
+        </button>
+        <button class="secondary choose-level" type="button" (click)="chooseLevel()">
+          Return to level selection
+        </button>
+      </div>
+    }
+    @case ('results') {
+      <div class="results" role="status">
+        <h3>Session results</h3>
+        <p>Level {{ selectedLevel().id }}: {{ selectedLevel().name }}</p>
+        <dl>
+          <div>
+            <dt>Correct answers</dt>
+            <dd class="correct-count">{{ correctCount() }}</dd>
+          </div>
+          <div>
+            <dt>Incorrect answers</dt>
+            <dd class="incorrect-count">{{ incorrectCount() }}</dd>
+          </div>
+          <div>
+            <dt>Accuracy</dt>
+            <dd class="accuracy">{{ accuracy() }}%</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="actions">
+        <button class="start-session" type="button" (click)="startSession()">
+          Start another session
+        </button>
+        <button class="secondary choose-level" type="button" (click)="chooseLevel()">
+          Return to level selection
+        </button>
+      </div>
+    }
+  }
 </section>

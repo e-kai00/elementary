@@ -31,12 +31,13 @@ select {
   font: inherit;
 }
 
-select:focus-visible {
+select:focus-visible,
+h2:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }
 
-.next-card {
+button {
   min-block-size: var(--space-12);
   max-inline-size: 100%;
   padding: var(--space-3) var(--space-6);
@@ -45,21 +46,67 @@ select:focus-visible {
   background: var(--color-primary);
   color: var(--color-on-primary);
   font: inherit;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
-.next-card:hover:enabled {
+button:hover:enabled {
   background: var(--color-primary-hover);
 }
 
-.next-card:disabled {
+button:disabled {
   border-color: var(--color-disabled-border);
   background: var(--color-disabled-surface);
   color: var(--color-disabled-text);
   cursor: default;
 }
 
-.next-card:focus-visible {
+button:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+button.secondary {
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+button.secondary:hover {
+  background: var(--color-surface-hover);
+}
+
+.results {
+  padding: var(--space-4);
+  margin-block-end: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface);
+}
+
+h3 {
+  margin-block: 0 var(--space-4);
+  font-size: var(--font-size-prompt);
+}
+
+dl {
+  margin: 0;
+}
+
+dl div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+
+dd {
+  margin: 0;
+  font-weight: 600;
 }

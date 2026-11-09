@@ -1,5 +1,6 @@
 import type { ChemicalElement } from './models/chemical-element.model';
 import type { LearningCard } from './models/learning-card.model';
+import { shuffle } from './utils/shuffle';
 
 export function generateSymbolCard(
   target: ChemicalElement,
@@ -119,12 +120,4 @@ function createOptions(
   ];
   shuffle(options);
   return options;
-}
-
-// Fisher–Yates shuffle
-function shuffle(values: string[]): void {
-  for (let index = values.length - 1; index > 0; index--) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [values[index], values[randomIndex]] = [values[randomIndex], values[index]];
-  }
 }

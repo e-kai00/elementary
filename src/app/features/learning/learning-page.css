@@ -110,3 +110,7 @@ dd {
   margin: 0;
   font-weight: 600;
 }
+
+.session-retention {
+  margin-block: var(--space-6) 0;
+}

@@ -3,6 +3,14 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
+import type {
+  CompletedLearningSession,
+  LearningSessionAnswer,
+} from '../../core/models/learning-session.model';
+import {
+  clearPendingGuestSessions,
+  getPendingGuestSessions,
+} from '../../core/utils/pending-guest-session';
 import { LearningCardComponent } from './learning-card/learning-card';
 import { LearningPageComponent } from './learning-page';
 import { LearningQuestionQueueService } from './learning-question-queue.service';
@@ -18,12 +26,18 @@ describe('LearningPageComponent', () => {
   }
 
   beforeEach(async () => {
+    clearPendingGuestSessions();
     TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/learn', LearningPageComponent);
     element = harness.routeNativeElement!;
     element.querySelector<HTMLButtonElement>('.start-session')!.click();
     harness.detectChanges();
+  });
+
+  afterEach(() => {
+    clearPendingGuestSessions();
+    vi.restoreAllMocks();
   });
 
   it('restricts cards to the selected level and resets the current answer state', () => {
@@ -40,6 +54,7 @@ describe('LearningPageComponent', () => {
     harness.detectChanges();
 
     expect(currentCard().type).toBe('symbol-to-name');
+    expect(getPendingGuestSessions()).toEqual([]);
     expect(element.querySelector<HTMLButtonElement>('.next-card')!.disabled).toBe(true);
     expect(element.querySelector('app-learning-card [role="status"]')?.textContent?.trim()).toBe(
       '',
@@ -88,8 +103,11 @@ describe('LearningPageComponent', () => {
   it('scores exactly ten answers and continues the queue in another session', async () => {
     const seenQuestions = new Set<string>();
     const draw = vi.spyOn(TestBed.inject(LearningQuestionQueueService), 'nextCard');
+    const uuid = vi.spyOn(crypto, 'randomUUID');
+    const savedSessions: CompletedLearningSession[] = [];
 
     for (let session = 0; session < 2; session++) {
+      const expectedAnswers: LearningSessionAnswer[] = [];
       for (let index = 0; index < 10; index++) {
         const card = currentCard();
         const key = `${card.elementId}:${card.type}`;
@@ -102,12 +120,23 @@ describe('LearningPageComponent', () => {
         const answer =
           session === 1 || index < 7
             ? card.correctAnswer
-            : card.options.find((option) => option !== card.correctAnswer);
+            : card.options.find((option) => option !== card.correctAnswer)!;
+        expectedAnswers.push({
+          elementId: card.elementId,
+          cardType: card.type,
+          selectedAnswer: answer,
+          correctAnswer: card.correctAnswer,
+          isCorrect: answer === card.correctAnswer,
+        });
         const button = Array.from(
           element.querySelectorAll<HTMLButtonElement>('app-learning-card button'),
         ).find((option) => option.textContent?.trim() === answer)!;
         button.click();
         await harness.fixture.whenStable();
+
+        if (index < 9) {
+          expect(getPendingGuestSessions()).toEqual(savedSessions);
+        }
 
         const next = element.querySelector<HTMLButtonElement>('.next-card')!;
         expect(next.disabled).toBe(false);
@@ -127,11 +156,25 @@ describe('LearningPageComponent', () => {
       expect(element.querySelector('.accuracy')?.textContent).toBe(session === 0 ? '70%' : '100%');
       // The initial question was drawn before this spy; viewing results draws no extra card.
       expect(draw).toHaveBeenCalledTimes(session === 0 ? 9 : 19);
+      expect(uuid).toHaveBeenCalledTimes(session + 1);
+
+      const stored = getPendingGuestSessions();
+      const saved = stored[session];
+      expect(saved).toEqual({
+        id: uuid.mock.results[session].value,
+        levelId: 1,
+        completedAt: expect.any(String),
+        answers: expectedAnswers,
+      });
+      expect(new Date(saved!.completedAt).toISOString()).toBe(saved!.completedAt);
+      savedSessions.push(saved);
+      expect(stored).toEqual(savedSessions);
 
       if (session === 0) {
         element.querySelector<HTMLButtonElement>('.start-session')!.click();
         await harness.fixture.whenStable();
         expect(element.querySelector<HTMLButtonElement>('.next-card')!.disabled).toBe(true);
+        expect(getPendingGuestSessions()).toEqual(savedSessions);
       }
     }
 
@@ -139,6 +182,7 @@ describe('LearningPageComponent', () => {
     await harness.fixture.whenStable();
     expect(element.querySelector('select')).not.toBeNull();
     expect(element.querySelector('app-learning-card')).toBeNull();
+    expect(getPendingGuestSessions()).toEqual(savedSessions);
   });
 
   it('uses the same application question queue after navigating away and back', async () => {

@@ -8,6 +8,11 @@ import {
 } from '@angular/core';
 import type { ElementRef } from '@angular/core';
 import type { LearningCard } from '../../core/models/learning-card.model';
+import type {
+  CompletedLearningSession,
+  LearningSessionAnswer,
+} from '../../core/models/learning-session.model';
+import { appendPendingGuestSession } from '../../core/utils/pending-guest-session';
 import { LearningCardComponent } from './learning-card/learning-card';
 import { LEARNING_LEVELS } from './learning-levels.config';
 import type { LearningLevel } from './learning-levels.config';
@@ -32,9 +37,9 @@ export class LearningPageComponent {
   protected readonly currentCard = signal<LearningCard | null>(null);
   protected readonly cardNumber = signal(1);
   protected readonly answered = signal(false);
-  protected readonly answers = signal<readonly { selectedAnswer: string; isCorrect: boolean }[]>(
-    [],
-  );
+  protected readonly answers = signal<readonly LearningSessionAnswer[]>([]);
+  protected readonly completedSession = signal<CompletedLearningSession | null>(null);
+  protected readonly retentionMessage = signal<string | null>(null);
   protected readonly correctCount = computed(
     () => this.answers().filter((answer) => answer.isCorrect).length,
   );
@@ -51,6 +56,8 @@ export class LearningPageComponent {
   }
 
   protected startSession(): void {
+    this.completedSession.set(null);
+    this.retentionMessage.set(null);
     this.answers.set([]);
     this.cardNumber.set(1);
     this.answered.set(false);
@@ -60,12 +67,37 @@ export class LearningPageComponent {
   }
 
   protected recordAnswer(answer: { selectedAnswer: string; isCorrect: boolean }): void {
-    if (this.screen() !== 'session' || this.answered()) {
+    const card = this.currentCard();
+    if (this.screen() !== 'session' || this.answered() || card === null) {
       return;
     }
 
-    this.answers.update((answers) => [...answers, answer]);
+    this.answers.update((answers) => [
+      ...answers,
+      {
+        elementId: card.elementId,
+        cardType: card.type,
+        selectedAnswer: answer.selectedAnswer,
+        correctAnswer: card.correctAnswer,
+        isCorrect: answer.isCorrect,
+      },
+    ]);
     this.answered.set(true);
+
+    if (this.answers().length === this.sessionLength) {
+      const session: CompletedLearningSession = {
+        id: crypto.randomUUID(),
+        levelId: this.selectedLevel().id,
+        completedAt: new Date().toISOString(),
+        answers: this.answers(),
+      };
+      this.completedSession.set(session);
+      this.retentionMessage.set(
+        appendPendingGuestSession(session)
+          ? 'Completed sessions are temporarily retained in this tab, including after page reloads.'
+          : 'This session could not be temporarily retained in this tab.',
+      );
+    }
   }
 
   protected nextCard(): void {

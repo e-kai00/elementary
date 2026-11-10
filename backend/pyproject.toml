@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elementary-backend"
+version = "0.1.0"
+description = "FastAPI backend for Elementary"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.135,<1.0",
+    "uvicorn>=0.41,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<10",
+    "httpx>=0.28,<0.29",
+]
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

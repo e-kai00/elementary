@@ -43,7 +43,8 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
-# Python (future backend)
+# Python
+build/
 __pycache__/
 *.py[cod]
 .venv/

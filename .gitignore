@@ -44,6 +44,9 @@ __screenshots__/
 Thumbs.db
 
 # Python
+.env
+.env.*
+!.env.example
 build/
 __pycache__/
 *.py[cod]

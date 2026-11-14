@@ -3,6 +3,24 @@
   <p>Learn the first 20 elements of the periodic table.</p>
   <nav aria-label="Main navigation">
     <a routerLink="/learn">Start learning</a>
+    @if (auth.isLoading$ | async) {
+      <span role="status">Checking sign-in…</span>
+    } @else if (auth.isAuthenticated$ | async) {
+      @if (auth.user$ | async; as user) {
+        <span>Signed in as {{ user.name || user.email || 'a learner' }}</span>
+      } @else {
+        <span>Signed in</span>
+      }
+      <button type="button" (click)="logOut()">Log out</button>
+    } @else {
+      <button type="button" (click)="logIn(true)">Create account</button>
+      <button type="button" (click)="logIn()">Log in</button>
+    }
+    @if ((auth.error$ | async) || actionFailed()) {
+      <p class="auth-message" role="status">
+        Account access could not be completed. Please try again or continue learning as a guest.
+      </p>
+    }
   </nav>
 </header>
 

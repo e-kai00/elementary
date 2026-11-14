@@ -24,7 +24,43 @@ nav a {
   text-underline-offset: 0.2em;
 }
 
-nav a:focus-visible {
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+nav button {
+  min-block-size: var(--space-12);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-strong) solid var(--color-primary);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+nav button:hover:enabled {
+  background: var(--color-surface-hover);
+}
+
+nav button:disabled {
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-text);
+  background: var(--color-disabled-surface);
+  cursor: default;
+}
+
+.auth-message {
+  flex-basis: 100%;
+  margin: 0;
+  line-height: var(--line-height-text);
+}
+
+nav a:focus-visible,
+nav button:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }

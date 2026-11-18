@@ -7,6 +7,8 @@ from app.main import app
 
 def test_health(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("AUTH0_DOMAIN", raising=False)
+    monkeypatch.delenv("AUTH0_AUDIENCE", raising=False)
     with TestClient(app) as client:
         response = client.get("/api/health")
 

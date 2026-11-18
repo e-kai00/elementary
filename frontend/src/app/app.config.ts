@@ -10,8 +10,12 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAuth0({
-      ...auth0Settings,
-      authorizationParams: { redirect_uri: window.location.origin },
+      domain: auth0Settings.domain,
+      clientId: auth0Settings.clientId,
+      authorizationParams: {
+        redirect_uri: window.location.origin,
+        audience: auth0Settings.audience,
+      },
       errorPath: '/learn',
     }),
   ],

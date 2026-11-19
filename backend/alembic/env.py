@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 
 from app.database import Base, engine
+from app.models import User  # Register users in Base.metadata for autogeneration.
 
 config = context.config
 if config.config_file_name is not None:

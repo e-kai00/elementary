@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app import database
-from app.models import User
+from app.models.user import User
 
 
 def get_or_create_user(auth0_user_id: str, *, session: Session | None = None) -> User:

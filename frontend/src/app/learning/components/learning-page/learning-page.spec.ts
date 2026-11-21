@@ -2,18 +2,18 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { routes } from '../../app.routes';
+import { routes } from '../../../app.routes';
 import type {
   CompletedLearningSession,
   LearningSessionAnswer,
-} from '../../core/models/learning-session.model';
+} from '../../models/learning-session.model';
 import {
   clearPendingGuestSessions,
   getPendingGuestSessions,
-} from '../../core/utils/pending-guest-session';
-import { LearningCardComponent } from './learning-card/learning-card';
+} from '../../utils/pending-guest-session';
+import { LearningCardComponent } from '../learning-card/learning-card';
 import { LearningPageComponent } from './learning-page';
-import { LearningQuestionQueueService } from './learning-question-queue.service';
+import { LearningQuestionQueueService } from '../../services/learning-question-queue.service';
 
 describe('LearningPageComponent', () => {
   let harness: RouterTestingHarness;

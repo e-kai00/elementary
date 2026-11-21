@@ -1,6 +1,6 @@
-import type { ChemicalElement } from './models/chemical-element.model';
-import type { LearningCard } from './models/learning-card.model';
-import { shuffle } from './utils/shuffle';
+import type { ChemicalElement } from '../models/chemical-element.model';
+import type { LearningCard } from '../models/learning-card.model';
+import { shuffle } from './shuffle';
 
 export function generateSymbolCard(
   target: ChemicalElement,

@@ -1,4 +1,4 @@
-import type { CardType } from '../../core/models/learning-card.model';
+import type { CardType } from '../models/learning-card.model';
 
 export interface LearningLevel {
   readonly id: number;

@@ -7,16 +7,16 @@ import {
   viewChild,
 } from '@angular/core';
 import type { ElementRef } from '@angular/core';
-import type { LearningCard } from '../../core/models/learning-card.model';
+import type { LearningCard } from '../../models/learning-card.model';
 import type {
   CompletedLearningSession,
   LearningSessionAnswer,
-} from '../../core/models/learning-session.model';
-import { appendPendingGuestSession } from '../../core/utils/pending-guest-session';
-import { LearningCardComponent } from './learning-card/learning-card';
-import { LEARNING_LEVELS } from './learning-levels.config';
-import type { LearningLevel } from './learning-levels.config';
-import { LearningQuestionQueueService } from './learning-question-queue.service';
+} from '../../models/learning-session.model';
+import { appendPendingGuestSession } from '../../utils/pending-guest-session';
+import { LearningCardComponent } from '../learning-card/learning-card';
+import { LEARNING_LEVELS } from '../../config/learning-levels.config';
+import type { LearningLevel } from '../../config/learning-levels.config';
+import { LearningQuestionQueueService } from '../../services/learning-question-queue.service';
 
 @Component({
   selector: 'app-learning-page',

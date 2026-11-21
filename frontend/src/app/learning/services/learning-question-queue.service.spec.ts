@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { CHEMICAL_ELEMENTS } from '../../core/data/chemical-elements.data';
-import { LEARNING_LEVELS } from './learning-levels.config';
+import { CHEMICAL_ELEMENTS } from '../data/chemical-elements.data';
+import { LEARNING_LEVELS } from '../config/learning-levels.config';
 import { LearningQuestionQueueService } from './learning-question-queue.service';
 
 describe('LearningQuestionQueueService', () => {

@@ -4,6 +4,8 @@ export const routes: Routes = [
   {
     path: 'learn',
     loadComponent: () =>
-      import('./features/learning/learning-page').then((module) => module.LearningPageComponent),
+      import('./learning/components/learning-page/learning-page').then(
+        (module) => module.LearningPageComponent,
+      ),
   },
 ];

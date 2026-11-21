@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { CHEMICAL_ELEMENTS } from '../../core/data/chemical-elements.data';
+import { CHEMICAL_ELEMENTS } from '../data/chemical-elements.data';
 import {
   generateAtomicNumberCard,
   generateCategoryCard,
   generateGroupCard,
   generateNameCard,
   generateSymbolCard,
-} from '../../core/learning-card-generator';
-import type { ChemicalElement } from '../../core/models/chemical-element.model';
-import type { CardType, LearningCard } from '../../core/models/learning-card.model';
-import { shuffle } from '../../core/utils/shuffle';
-import type { LearningLevel } from './learning-levels.config';
+} from '../utils/learning-card-generator';
+import type { ChemicalElement } from '../models/chemical-element.model';
+import type { CardType, LearningCard } from '../models/learning-card.model';
+import { shuffle } from '../utils/shuffle';
+import type { LearningLevel } from '../config/learning-levels.config';
 
 interface Question {
   readonly element: ChemicalElement;

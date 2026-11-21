@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import type { OnChanges } from '@angular/core';
-import type { LearningCard } from '../../../core/models/learning-card.model';
+import type { LearningCard } from '../../models/learning-card.model';
 
 @Component({
   selector: 'app-learning-card',

@@ -4,7 +4,7 @@
 dist/
 /tmp
 out-tsc/
-/frontend/src/app/core/auth.config.generated.ts
+/frontend/src/app/core/auth/auth.config.generated.ts
 /bazel-out
 
 # Node

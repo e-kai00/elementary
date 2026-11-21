@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
-import type { LearningCard } from '../../../core/models/learning-card.model';
+import type { LearningCard } from '../../models/learning-card.model';
 import { LearningCardComponent } from './learning-card';
 
 describe('LearningCardComponent', () => {

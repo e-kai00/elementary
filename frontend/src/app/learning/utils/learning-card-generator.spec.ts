@@ -1,4 +1,4 @@
-import { CHEMICAL_ELEMENTS } from './data/chemical-elements.data';
+import { CHEMICAL_ELEMENTS } from '../data/chemical-elements.data';
 import {
   generateAtomicNumberCard,
   generateCategoryCard,

@@ -5,6 +5,11 @@ from uuid import UUID
 from fastapi import Depends, FastAPI
 
 from app.auth import get_current_user_id
+from app.learning_sessions import (
+    CompletedLearningSessionData,
+    get_learning_sessions,
+    save_learning_session,
+)
 from app.users import get_or_create_user
 
 app = FastAPI()
@@ -27,3 +32,18 @@ def me(
         "email": user.email,
         "created_at": user.created_at.astimezone(UTC),
     }
+
+
+@app.post("/api/learning-sessions", response_model=CompletedLearningSessionData)
+def create_learning_session(
+    completed: CompletedLearningSessionData,
+    user_id: Annotated[str, Depends(get_current_user_id)],
+) -> CompletedLearningSessionData:
+    return save_learning_session(user_id, completed)
+
+
+@app.get("/api/learning-sessions", response_model=list[CompletedLearningSessionData])
+def learning_sessions(
+    user_id: Annotated[str, Depends(get_current_user_id)],
+) -> list[CompletedLearningSessionData]:
+    return get_learning_sessions(user_id)

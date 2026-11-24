@@ -12,6 +12,15 @@
         <span>Signed in</span>
       }
       <button type="button" (click)="logOut()">Log out</button>
+      @if (apiStatus() === 'loading') {
+        <span role="status">Connecting to Elementary…</span>
+      } @else if (apiStatus() === 'ready') {
+        <span role="status">Account connected.</span>
+      } @else if (apiStatus() === 'error') {
+        <p class="auth-message" role="status">
+          Could not connect to Elementary. You can continue learning.
+        </p>
+      }
     } @else {
       <button type="button" (click)="logIn(true)">Create account</button>
       <button type="button" (click)="logIn()">Log in</button>

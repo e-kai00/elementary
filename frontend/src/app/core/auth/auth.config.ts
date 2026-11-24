@@ -1,1 +1,1 @@
-export { auth0Settings } from './auth.config.generated';
+export { auth0Settings, apiBaseUrl } from './auth.config.generated';

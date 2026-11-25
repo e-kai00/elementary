@@ -5,6 +5,8 @@ import { AuthService } from '@auth0/auth0-angular';
 import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
+import { UserApiService } from './core/api/user-api.service';
+import type { ElementaryUser } from './core/api/user.model';
 import { CHEMICAL_ELEMENTS } from './learning/data/chemical-elements.data';
 import type { CompletedLearningSession } from './learning/models/learning-session.model';
 import {
@@ -14,6 +16,14 @@ import {
 } from './learning/utils/pending-guest-session';
 
 describe('App', () => {
+  const backendUser: ElementaryUser = {
+    id: '0f24a2a7-7619-43d6-ad54-be3aef11f3e3',
+    username: null,
+    name: null,
+    email: null,
+    created_at: '2026-01-01T12:00:00Z',
+  };
+  const userApi = { getMe: vi.fn(() => of(backendUser)) };
   const auth = {
     isLoading$: of(false),
     isAuthenticated$: new BehaviorSubject(false),
@@ -47,11 +57,16 @@ describe('App', () => {
     auth.isAuthenticated$.next(false);
     auth.loginWithRedirect.mockReset().mockReturnValue(of(void 0));
     auth.logout.mockReset().mockReturnValue(of(void 0));
+    userApi.getMe.mockReset().mockReturnValue(of(backendUser));
     clearPendingGuestSessions();
     appendPendingGuestSession(pendingSession);
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes), { provide: AuthService, useValue: auth }],
+      providers: [
+        provideRouter(routes),
+        { provide: AuthService, useValue: auth },
+        { provide: UserApiService, useValue: userApi },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(App);
     element = fixture.nativeElement as HTMLElement;
@@ -68,6 +83,43 @@ describe('App', () => {
 
   it('should render title', () => {
     expect(element.querySelector('h1')?.textContent).toContain('Elementary');
+  });
+
+  it('connects after sign-in, shows loading and success, and resets on sign-out', () => {
+    expect(userApi.getMe).not.toHaveBeenCalled();
+    const response = new Subject<ElementaryUser>();
+    userApi.getMe.mockReturnValueOnce(response);
+    auth.isAuthenticated$.next(true);
+    fixture.detectChanges();
+    expect(element.querySelector('nav')?.textContent).toContain('Connecting to Elementary');
+    auth.isAuthenticated$.next(true);
+    expect(userApi.getMe).toHaveBeenCalledTimes(1);
+
+    response.next(backendUser);
+    fixture.detectChanges();
+    expect(element.querySelector('nav')?.textContent).toContain('Account connected.');
+
+    auth.isAuthenticated$.next(false);
+    response.next(backendUser);
+    fixture.detectChanges();
+    expect(element.querySelector('nav')?.textContent).not.toContain('Account connected.');
+    expect(getPendingGuestSessions()).toEqual([pendingSession]);
+  });
+
+  it('keeps learning and pending sessions available after an API failure', async () => {
+    await TestBed.inject(Router).navigateByUrl('/learn');
+    userApi.getMe.mockReturnValueOnce(throwError(() => new Error('API unavailable')));
+    auth.isAuthenticated$.next(true);
+    await fixture.whenStable();
+
+    expect(element.querySelector('.auth-message')?.textContent).toContain('continue learning');
+    expect(element.querySelector('app-learning-page .start-session')).not.toBeNull();
+    expect(getPendingGuestSessions()).toEqual([pendingSession]);
+
+    auth.isAuthenticated$.next(false);
+    auth.isAuthenticated$.next(true);
+    fixture.detectChanges();
+    expect(element.querySelector('nav')?.textContent).toContain('Account connected.');
   });
 
   it.each([

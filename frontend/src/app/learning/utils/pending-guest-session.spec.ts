@@ -4,6 +4,7 @@ import {
   appendPendingGuestSession,
   clearPendingGuestSessions,
   getPendingGuestSessions,
+  removePendingGuestSession,
   PENDING_GUEST_SESSIONS_KEY,
 } from './pending-guest-session';
 
@@ -22,6 +23,7 @@ describe('pending guest session storage', () => {
   };
 
   afterEach(() => {
+    vi.restoreAllMocks();
     clearPendingGuestSessions();
   });
 
@@ -73,5 +75,20 @@ describe('pending guest session storage', () => {
     appendPendingGuestSession(anotherSession);
 
     expect(getPendingGuestSessions()).toEqual([session, anotherSession]);
+  });
+
+  it('removes only the acknowledged ID and retains data if the storage update fails', () => {
+    const anotherSession = { ...session, id: crypto.randomUUID() };
+    appendPendingGuestSession(session);
+    appendPendingGuestSession(anotherSession);
+
+    expect(removePendingGuestSession(session.id)).toBe(true);
+    expect(getPendingGuestSessions()).toEqual([anotherSession]);
+
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new Error('Storage unavailable');
+    });
+    expect(removePendingGuestSession(anotherSession.id)).toBe(false);
+    expect(getPendingGuestSessions()).toEqual([anotherSession]);
   });
 });

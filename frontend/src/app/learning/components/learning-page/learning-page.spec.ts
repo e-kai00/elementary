@@ -14,8 +14,10 @@ import {
 import { LearningCardComponent } from '../learning-card/learning-card';
 import { LearningPageComponent } from './learning-page';
 import { LearningQuestionQueueService } from '../../services/learning-question-queue.service';
+import { LearningSessionSyncService } from '../../services/learning-session-sync.service';
 
 describe('LearningPageComponent', () => {
+  const sessionSync = { syncPendingSessions: vi.fn() };
   let harness: RouterTestingHarness;
   let element: HTMLElement;
 
@@ -27,7 +29,13 @@ describe('LearningPageComponent', () => {
 
   beforeEach(async () => {
     clearPendingGuestSessions();
-    TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
+    sessionSync.syncPendingSessions.mockClear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(routes),
+        { provide: LearningSessionSyncService, useValue: sessionSync },
+      ],
+    });
     harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/learn', LearningPageComponent);
     element = harness.routeNativeElement!;
@@ -136,6 +144,9 @@ describe('LearningPageComponent', () => {
 
         if (index < 9) {
           expect(getPendingGuestSessions()).toEqual(savedSessions);
+          expect(sessionSync.syncPendingSessions).toHaveBeenCalledTimes(session);
+        } else {
+          expect(sessionSync.syncPendingSessions).toHaveBeenCalledTimes(session + 1);
         }
 
         const next = element.querySelector<HTMLButtonElement>('.next-card')!;

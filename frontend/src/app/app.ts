@@ -1,11 +1,9 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
-import { catchError, distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
 
-import { UserApiService } from './core/api/user-api.service';
+import { LearningSessionSyncService } from './learning/services/learning-session-sync.service';
 
 @Component({
   selector: 'app-root',
@@ -16,23 +14,8 @@ import { UserApiService } from './core/api/user-api.service';
 export class App {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly userApi = inject(UserApiService);
   protected readonly actionFailed = signal(false);
-  protected readonly apiStatus = toSignal(
-    this.auth.isAuthenticated$.pipe(
-      distinctUntilChanged(),
-      switchMap((authenticated) =>
-        authenticated
-          ? this.userApi.getMe().pipe(
-              map(() => 'ready' as const),
-              startWith('loading' as const),
-              catchError(() => of('error' as const)),
-            )
-          : of('idle' as const),
-      ),
-    ),
-    { initialValue: 'idle' },
-  );
+  protected readonly apiStatus = inject(LearningSessionSyncService).apiStatus;
 
   protected logIn(signUp = false): void {
     this.actionFailed.set(false);

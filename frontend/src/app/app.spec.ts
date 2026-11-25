@@ -2,13 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
-import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, of, throwError } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
 import { UserApiService } from './core/api/user-api.service';
 import type { ElementaryUser } from './core/api/user.model';
 import { CHEMICAL_ELEMENTS } from './learning/data/chemical-elements.data';
 import type { CompletedLearningSession } from './learning/models/learning-session.model';
+import { LearningSessionApiService } from './learning/services/learning-session-api.service';
 import {
   appendPendingGuestSession,
   clearPendingGuestSessions,
@@ -24,6 +25,7 @@ describe('App', () => {
     created_at: '2026-01-01T12:00:00Z',
   };
   const userApi = { getMe: vi.fn(() => of(backendUser)) };
+  const sessionApi = { saveSession: vi.fn(() => NEVER) };
   const auth = {
     isLoading$: of(false),
     isAuthenticated$: new BehaviorSubject(false),
@@ -58,6 +60,7 @@ describe('App', () => {
     auth.loginWithRedirect.mockReset().mockReturnValue(of(void 0));
     auth.logout.mockReset().mockReturnValue(of(void 0));
     userApi.getMe.mockReset().mockReturnValue(of(backendUser));
+    sessionApi.saveSession.mockClear();
     clearPendingGuestSessions();
     appendPendingGuestSession(pendingSession);
     await TestBed.configureTestingModule({
@@ -66,6 +69,7 @@ describe('App', () => {
         provideRouter(routes),
         { provide: AuthService, useValue: auth },
         { provide: UserApiService, useValue: userApi },
+        { provide: LearningSessionApiService, useValue: sessionApi },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(App);
@@ -120,6 +124,18 @@ describe('App', () => {
     auth.isAuthenticated$.next(true);
     fixture.detectChanges();
     expect(element.querySelector('nav')?.textContent).toContain('Account connected.');
+  });
+
+  it('does not duplicate backend checks or uploads when the app component is recreated', () => {
+    auth.isAuthenticated$.next(true);
+    fixture.detectChanges();
+    fixture.destroy();
+    fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    expect(userApi.getMe).toHaveBeenCalledTimes(1);
+    expect(sessionApi.saveSession).toHaveBeenCalledExactlyOnceWith(pendingSession);
+    expect(getPendingGuestSessions()).toEqual([pendingSession]);
   });
 
   it.each([

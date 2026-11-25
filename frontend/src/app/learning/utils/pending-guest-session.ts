@@ -55,6 +55,22 @@ export function clearPendingGuestSessions(): boolean {
   }
 }
 
+export function removePendingGuestSession(sessionId: string): boolean {
+  try {
+    const sessions = getPendingGuestSessions();
+    if (!sessions.some((session) => session.id === sessionId)) {
+      return true;
+    }
+    sessionStorage.setItem(
+      PENDING_GUEST_SESSIONS_KEY,
+      JSON.stringify(sessions.filter((session) => session.id !== sessionId)),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }

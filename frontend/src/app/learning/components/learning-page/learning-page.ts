@@ -17,6 +17,7 @@ import { LearningCardComponent } from '../learning-card/learning-card';
 import { LEARNING_LEVELS } from '../../config/learning-levels.config';
 import type { LearningLevel } from '../../config/learning-levels.config';
 import { LearningQuestionQueueService } from '../../services/learning-question-queue.service';
+import { LearningSessionSyncService } from '../../services/learning-session-sync.service';
 
 @Component({
   selector: 'app-learning-page',
@@ -28,6 +29,7 @@ import { LearningQuestionQueueService } from '../../services/learning-question-q
 })
 export class LearningPageComponent {
   private readonly questions = inject(LearningQuestionQueueService);
+  private readonly sessionSync = inject(LearningSessionSyncService);
   private readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('screenHeading');
 
   protected readonly levels = LEARNING_LEVELS;
@@ -92,11 +94,15 @@ export class LearningPageComponent {
         answers: this.answers(),
       };
       this.completedSession.set(session);
+      const retained = appendPendingGuestSession(session);
       this.retentionMessage.set(
-        appendPendingGuestSession(session)
-          ? 'Completed sessions are temporarily retained in this tab, including after page reloads.'
+        retained
+          ? 'Completed sessions stay in this tab until successfully uploaded when signed in.'
           : 'This session could not be temporarily retained in this tab.',
       );
+      if (retained) {
+        this.sessionSync.syncPendingSessions();
+      }
     }
   }
 

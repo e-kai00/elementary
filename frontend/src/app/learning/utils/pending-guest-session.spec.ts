@@ -2,6 +2,7 @@ import { CHEMICAL_ELEMENTS } from '../data/chemical-elements.data';
 import type { CompletedLearningSession } from '../models/learning-session.model';
 import {
   appendPendingGuestSession,
+  claimPendingGuestSession,
   clearPendingGuestSessions,
   getPendingGuestSessions,
   removePendingGuestSession,
@@ -90,5 +91,21 @@ describe('pending guest session storage', () => {
     });
     expect(removePendingGuestSession(anotherSession.id)).toBe(false);
     expect(getPendingGuestSessions()).toEqual([anotherSession]);
+  });
+
+  it('persists ownership through appends and removals without adding it to API session data', () => {
+    const guest = { ...session, id: crypto.randomUUID() };
+    appendPendingGuestSession(session, 'auth0|first');
+    appendPendingGuestSession(guest);
+    expect(claimPendingGuestSession(session.id, 'auth0|other')).toBe(false);
+    expect(claimPendingGuestSession(guest.id, 'auth0|first')).toBe(true);
+    expect(claimPendingGuestSession(guest.id, 'auth0|other')).toBe(false);
+    expect(getPendingGuestSessions()).toEqual([session, guest]);
+
+    removePendingGuestSession(session.id);
+    expect(claimPendingGuestSession(guest.id, 'auth0|other')).toBe(false);
+    expect(JSON.parse(sessionStorage.getItem(PENDING_GUEST_SESSIONS_KEY)!)).toEqual([
+      { ...guest, ownerId: 'auth0|first' },
+    ]);
   });
 });

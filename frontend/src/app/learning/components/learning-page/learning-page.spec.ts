@@ -8,6 +8,7 @@ import type {
   LearningSessionAnswer,
 } from '../../models/learning-session.model';
 import {
+  appendPendingGuestSession,
   clearPendingGuestSessions,
   getPendingGuestSessions,
 } from '../../utils/pending-guest-session';
@@ -17,7 +18,9 @@ import { LearningQuestionQueueService } from '../../services/learning-question-q
 import { LearningSessionSyncService } from '../../services/learning-session-sync.service';
 
 describe('LearningPageComponent', () => {
-  const sessionSync = { syncPendingSessions: vi.fn() };
+  const sessionSync = {
+    retainSession: vi.fn((session: CompletedLearningSession) => appendPendingGuestSession(session)),
+  };
   let harness: RouterTestingHarness;
   let element: HTMLElement;
 
@@ -29,7 +32,7 @@ describe('LearningPageComponent', () => {
 
   beforeEach(async () => {
     clearPendingGuestSessions();
-    sessionSync.syncPendingSessions.mockClear();
+    sessionSync.retainSession.mockClear();
     TestBed.configureTestingModule({
       providers: [
         provideRouter(routes),
@@ -144,9 +147,9 @@ describe('LearningPageComponent', () => {
 
         if (index < 9) {
           expect(getPendingGuestSessions()).toEqual(savedSessions);
-          expect(sessionSync.syncPendingSessions).toHaveBeenCalledTimes(session);
+          expect(sessionSync.retainSession).toHaveBeenCalledTimes(session);
         } else {
-          expect(sessionSync.syncPendingSessions).toHaveBeenCalledTimes(session + 1);
+          expect(sessionSync.retainSession).toHaveBeenCalledTimes(session + 1);
         }
 
         const next = element.querySelector<HTMLButtonElement>('.next-card')!;

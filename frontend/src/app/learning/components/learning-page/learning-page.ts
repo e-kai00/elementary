@@ -12,7 +12,6 @@ import type {
   CompletedLearningSession,
   LearningSessionAnswer,
 } from '../../models/learning-session.model';
-import { appendPendingGuestSession } from '../../utils/pending-guest-session';
 import { LearningCardComponent } from '../learning-card/learning-card';
 import { LEARNING_LEVELS } from '../../config/learning-levels.config';
 import type { LearningLevel } from '../../config/learning-levels.config';
@@ -94,15 +93,12 @@ export class LearningPageComponent {
         answers: this.answers(),
       };
       this.completedSession.set(session);
-      const retained = appendPendingGuestSession(session);
+      const retained = this.sessionSync.retainSession(session);
       this.retentionMessage.set(
         retained
           ? 'Completed sessions stay in this tab until successfully uploaded when signed in.'
           : 'This session could not be temporarily retained in this tab.',
       );
-      if (retained) {
-        this.sessionSync.syncPendingSessions();
-      }
     }
   }
 

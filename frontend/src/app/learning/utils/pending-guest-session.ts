@@ -7,18 +7,28 @@ import type {
 // Retain the existing key so a previously saved single session is preserved.
 export const PENDING_GUEST_SESSIONS_KEY = 'elementary.pending-guest-session';
 
-export function appendPendingGuestSession(session: CompletedLearningSession): boolean {
+interface PendingLearningSession extends CompletedLearningSession {
+  readonly ownerId?: string;
+}
+
+export function appendPendingGuestSession(
+  session: CompletedLearningSession,
+  ownerId: string | null = null,
+): boolean {
   if (!isCompletedSession(session)) {
     return false;
   }
 
   try {
-    const sessions = getPendingGuestSessions();
+    const sessions = readPendingSessions();
     if (sessions.some((pending) => pending.id === session.id)) {
       return true;
     }
 
-    sessionStorage.setItem(PENDING_GUEST_SESSIONS_KEY, JSON.stringify([...sessions, session]));
+    sessionStorage.setItem(
+      PENDING_GUEST_SESSIONS_KEY,
+      JSON.stringify([...sessions, ownerId === null ? session : { ...session, ownerId }]),
+    );
     return true;
   } catch {
     return false;
@@ -26,6 +36,10 @@ export function appendPendingGuestSession(session: CompletedLearningSession): bo
 }
 
 export function getPendingGuestSessions(): readonly CompletedLearningSession[] {
+  return readPendingSessions().map(({ ownerId, ...session }) => session);
+}
+
+function readPendingSessions(): PendingLearningSession[] {
   try {
     const stored = sessionStorage.getItem(PENDING_GUEST_SESSIONS_KEY);
     if (stored === null) {
@@ -34,15 +48,40 @@ export function getPendingGuestSessions(): readonly CompletedLearningSession[] {
 
     const parsed: unknown = JSON.parse(stored);
     const candidates: unknown[] = Array.isArray(parsed) ? parsed : [parsed];
-    const sessions = new Map<string, CompletedLearningSession>();
+    const sessions = new Map<string, PendingLearningSession>();
     for (const session of candidates) {
-      if (isCompletedSession(session) && !sessions.has(session.id)) {
+      if (
+        isCompletedSession(session) &&
+        (!('ownerId' in session) || typeof session['ownerId'] === 'string') &&
+        !sessions.has(session.id)
+      ) {
         sessions.set(session.id, session);
       }
     }
     return [...sessions.values()];
   } catch {
     return [];
+  }
+}
+
+export function claimPendingGuestSession(sessionId: string, ownerId: string): boolean {
+  try {
+    const sessions = readPendingSessions();
+    const pending = sessions.find((session) => session.id === sessionId);
+    if (!ownerId || !pending || (pending.ownerId !== undefined && pending.ownerId !== ownerId)) {
+      return false;
+    }
+    if (pending.ownerId === undefined) {
+      sessionStorage.setItem(
+        PENDING_GUEST_SESSIONS_KEY,
+        JSON.stringify(
+          sessions.map((session) => (session.id === sessionId ? { ...session, ownerId } : session)),
+        ),
+      );
+    }
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -57,7 +96,7 @@ export function clearPendingGuestSessions(): boolean {
 
 export function removePendingGuestSession(sessionId: string): boolean {
   try {
-    const sessions = getPendingGuestSessions();
+    const sessions = readPendingSessions();
     if (!sessions.some((session) => session.id === sessionId)) {
       return true;
     }

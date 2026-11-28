@@ -15,7 +15,7 @@ export function appendPendingGuestSession(
   session: CompletedLearningSession,
   ownerId: string | null = null,
 ): boolean {
-  if (!isCompletedSession(session)) {
+  if (!isCompletedSession(session) || (ownerId !== null && !ownerId.trim())) {
     return false;
   }
 
@@ -64,11 +64,16 @@ function readPendingSessions(): PendingLearningSession[] {
   }
 }
 
+// session belongs to this user or can be assigned to them
 export function claimPendingGuestSession(sessionId: string, ownerId: string): boolean {
   try {
     const sessions = readPendingSessions();
     const pending = sessions.find((session) => session.id === sessionId);
-    if (!ownerId || !pending || (pending.ownerId !== undefined && pending.ownerId !== ownerId)) {
+    if (
+      !ownerId.trim() ||
+      !pending ||
+      (pending.ownerId !== undefined && pending.ownerId !== ownerId)
+    ) {
       return false;
     }
     if (pending.ownerId === undefined) {

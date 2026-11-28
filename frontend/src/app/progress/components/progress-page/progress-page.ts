@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
@@ -15,6 +15,7 @@ import {
 import { LEARNING_LEVELS } from '../../../learning/config/learning-levels.config';
 import type { CompletedLearningSession } from '../../../learning/models/learning-session.model';
 import { LearningSessionApiService } from '../../../learning/services/learning-session-api.service';
+import { calculateProgressStatistics } from '../../utils/progress-statistics';
 
 @Component({
   selector: 'app-progress-page',
@@ -28,12 +29,17 @@ export class ProgressPageComponent {
   private readonly auth = inject(AuthService);
   private readonly sessionApi = inject(LearningSessionApiService);
 
-  protected readonly history = toSignal(this.loadHistory(),
-    { initialValue: { status: 'loading' as const, sessions: [] } },
-  );
+  protected readonly history = toSignal(this.loadHistory(), {
+    initialValue: { status: 'loading' as const, sessions: [] },
+  });
 
-  private loadHistory(){
-     return combineLatest([this.auth.isAuthenticated$, this.auth.user$]).pipe(
+  protected readonly statistics = computed(() => {
+    const history = this.history();
+    return history.status === 'loaded' ? calculateProgressStatistics(history.sessions) : null;
+  });
+
+  private loadHistory() {
+    return combineLatest([this.auth.isAuthenticated$, this.auth.user$]).pipe(
       map(([authenticated, user]) => (authenticated ? user?.sub : null)),
       distinctUntilChanged(),
       switchMap((ownerId) =>
@@ -48,7 +54,7 @@ export class ProgressPageComponent {
               sessions: [],
             }),
       ),
-    )
+    );
   }
 
   protected levelName(levelId: number): string {

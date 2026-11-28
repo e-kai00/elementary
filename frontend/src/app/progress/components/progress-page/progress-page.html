@@ -1,5 +1,5 @@
-<section aria-labelledby="history-heading">
-  <h2 id="history-heading">Learning history</h2>
+<section aria-labelledby="progress-heading">
+  <h2 id="progress-heading">Learning progress</h2>
 
   @switch (history().status) {
     @case ('loading') {
@@ -13,24 +13,81 @@
     }
     @case ('loaded') {
       @if (history().sessions.length === 0) {
-        <p role="status">No completed sessions yet.</p>
+        <p role="status">
+          No completed sessions yet. Start a learning session to see your progress here.
+        </p>
       } @else {
-        <ol class="sessions" aria-label="Completed learning sessions">
-          @for (session of history().sessions; track session.id) {
-            <li>
-              <h3>Level {{ session.levelId }}: {{ levelName(session.levelId) }}</h3>
-              <p>
-                <time [attr.datetime]="session.completedAt">{{
-                  completionDate(session.completedAt)
-                }}</time>
-              </p>
-              <p class="score">Score: {{ correctAnswers(session) }} out of 10</p>
-            </li>
-          }
-        </ol>
+        @if (statistics(); as stats) {
+          <dl class="summary" aria-label="Learning summary">
+            <div>
+              <dt>Total completed sessions</dt>
+              <dd>{{ stats.totalCompletedSessions }}</dd>
+            </div>
+            <div>
+              <dt>Total questions answered</dt>
+              <dd>{{ stats.totalQuestionsAnswered }}</dd>
+            </div>
+            <div>
+              <dt>Overall accuracy</dt>
+              <dd>{{ stats.overallAccuracyPercentage }}%</dd>
+            </div>
+          </dl>
+
+          <section aria-labelledby="levels-heading">
+            <h3 id="levels-heading">Progress by level</h3>
+            <ul class="levels">
+              @for (level of stats.perLevel; track level.levelId) {
+                <li>
+                  <h4 [id]="'level-heading-' + level.levelId">{{ level.levelName }}</h4>
+                  <p class="level-sessions">Completed sessions: {{ level.completedSessions }}</p>
+                  @if (level.completedSessions === 0) {
+                    <p class="not-practiced">Not practiced yet</p>
+                    <div class="accuracy-track unpracticed" aria-hidden="true"></div>
+                  } @else {
+                    <p class="level-accuracy">Accuracy: {{ level.accuracyPercentage }}%</p>
+                    <div
+                      class="accuracy-track"
+                      role="progressbar"
+                      [attr.aria-labelledby]="'level-heading-' + level.levelId"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      [attr.aria-valuenow]="level.accuracyPercentage"
+                      [attr.aria-valuetext]="level.accuracyPercentage + '% accuracy'"
+                    >
+                      <div class="accuracy-fill" [style.width.%]="level.accuracyPercentage"></div>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        <section aria-labelledby="history-heading">
+          <h3 id="history-heading">Learning history</h3>
+          <ol class="sessions" aria-label="Completed learning sessions">
+            @for (session of history().sessions; track session.id) {
+              <li>
+                <div class="session-details">
+                  <h4 class="session-level">
+                    Level {{ session.levelId }}: {{ levelName(session.levelId) }}
+                  </h4>
+                  <time [attr.datetime]="session.completedAt">{{
+                    completionDate(session.completedAt)
+                  }}</time>
+                </div>
+                <p class="score">Score: {{ correctAnswers(session) }} out of 10</p>
+              </li>
+            }
+          </ol>
+        </section>
       }
     }
   }
 
-  <a routerLink="/learn">Continue learning</a>
+  <a routerLink="/learn">{{
+    history().status === 'loaded' && history().sessions.length === 0
+      ? 'Start learning'
+      : 'Continue learning'
+  }}</a>
 </section>

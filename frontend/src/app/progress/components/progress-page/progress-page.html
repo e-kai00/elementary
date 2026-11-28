@@ -1,0 +1,36 @@
+<section aria-labelledby="history-heading">
+  <h2 id="history-heading">Learning history</h2>
+
+  @switch (history().status) {
+    @case ('loading') {
+      <p role="status">Loading your learning sessions…</p>
+    }
+    @case ('error') {
+      <p role="alert">Your learning history could not be loaded. You can continue learning.</p>
+    }
+    @case ('signed-out') {
+      <p role="status">Sign in to view your learning history.</p>
+    }
+    @case ('loaded') {
+      @if (history().sessions.length === 0) {
+        <p role="status">No completed sessions yet.</p>
+      } @else {
+        <ol class="sessions" aria-label="Completed learning sessions">
+          @for (session of history().sessions; track session.id) {
+            <li>
+              <h3>Level {{ session.levelId }}: {{ levelName(session.levelId) }}</h3>
+              <p>
+                <time [attr.datetime]="session.completedAt">{{
+                  completionDate(session.completedAt)
+                }}</time>
+              </p>
+              <p class="score">Score: {{ correctAnswers(session) }} out of 10</p>
+            </li>
+          }
+        </ol>
+      }
+    }
+  }
+
+  <a routerLink="/learn">Continue learning</a>
+</section>

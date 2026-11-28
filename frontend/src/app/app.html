@@ -6,6 +6,7 @@
     @if (auth.isLoading$ | async) {
       <span role="status">Checking sign-in…</span>
     } @else if (auth.isAuthenticated$ | async) {
+      <a routerLink="/progress">Learning history</a>
       @if (auth.user$ | async; as user) {
         <span>Signed in as {{ user.name || user.email || 'a learner' }}</span>
       } @else {
